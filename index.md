@@ -39,6 +39,6 @@ b 站也是一样：既然能站着赚钱，为啥还非得跪着呢？
 
 ### 报告问题
 
-- [GitHub Issues]()
+- [GitHub Issues](https://github.com/duoduoeeee/bilibili-institute/issues)
 
 <p style="color:lightgrey">bilibili、哔哩哔哩是上海幻电信息科技有限公司的注册商标。</p>
