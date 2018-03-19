@@ -5,13 +5,13 @@ layout: page
 
 这里收集 B 站所有无需 appkey 和 appsecret 的 API。
 
-<p class=yousa>合理调用，不要频繁发送请求，以免被识别成机器。</p>
+<div class=yousa>合理调用，不要频繁发送请求，以免被识别成机器。</div>
 
-<p class=yousa>【注意】B 站的静态图片资源（i*.hdslb.com 等域）做了根据 referer 进行跨站请求判断的机制，从非白名单 referer 请求图片会报 403 错误。一些 API 似乎也有此限制。你需要在请求头中写明 Referer 的值为 https://www.bilibili.com 。</p>
+<div class=yousa>【注意】B 站的静态图片资源（i*.hdslb.com 等域）做了根据 referer 进行跨站请求判断的机制，从非白名单 referer 请求图片会报 403 错误。一些 API 似乎也有此限制。你需要在请求头中写明 Referer 的值为 https://www.bilibili.com 。</div>
 
 不得不吐个槽！！你看 B 站多大度！API 从不搞稀奇古怪的跳转验证加 cookie！除了耗流量的静态资源为了防盗链才做了个 js！！反观某浪！！简直就是耍流氓！！渣浪再这样封闭下去，早晚得给作死
 
-### 稿件相关
+## 稿件相关
 
 **通过 av 号（aid）获得对应的稿件分段（cid）。** 可以向如下地址发送 GET 请求：
 
@@ -84,7 +84,7 @@ duration → 分段的长度（秒）
           "ttl":1}
 ```
 
-<p class=yousa>中文部分可能含有正则表达式语法，需要额外处理。</p>
+**中文部分可能含有正则表达式语法，需要额外处理。**
 
 data → 数据
 
@@ -133,6 +133,8 @@ data > stat > share → 分享数
 data > stat > now_rank → 稿件当前排名
 
 data > stat > his_rank → 稿件全站最高日排行
+
+<div class=yousa>【注意】b 站最近更改了接口的设定。这个请求中现在需要多携带一个参数<code>photo=1</code>才能获得用户的头图。</div>
 
 你也可以用这个返回较为简单的接口：
 
@@ -357,7 +359,7 @@ currentEpisode > seasonId → 所在的番剧号（URL 中 anime 后面的号）
 
 regtime → 注册时的 UNIX 时间戳
 
-### BLive 相关
+## BLive 相关
 
 **获得哔哩哔哩动态详情。** GET 如下地址：
 
@@ -498,7 +500,7 @@ regtime → 注册时的 UNIX 时间戳
 
 
 
-### 弹幕相关
+## 弹幕相关
 
 **获得视频稿件的弹幕（XML 格式）。** 可以向如下地址发送 GET 请求：
 
@@ -508,7 +510,7 @@ regtime → 注册时的 UNIX 时间戳
 
 - 获取当前弹幕池：`https://comment.bilibili.com/{cid}.xml`
 
-<p><span class=yousa>XML 下载后可能需要做 deflate 解压。</span><a href = https://www.crifan.com/set_accept_encoding_header_to_gzip_deflate_return_messy_code/ target=\_blank>处理方法</a></p>
+**XML 下载后可能需要做 deflate 解压。[处理方法](https://www.crifan.com/set_accept_encoding_header_to_gzip_deflate_return_messy_code/)**
 
 弹幕 XML 解释
 
@@ -520,7 +522,7 @@ regtime → 注册时的 UNIX 时间戳
 - p 第五位：unix 时间戳
 - p 第六位：弹幕池类型，默认 0
 - p 第七位：发送者 id（彩虹表加密）
-- p 第八位：弹幕 id（即为要记录的 danmaku_uid）
+- p 第八位：弹幕 id
 
 **获得直播的实时弹幕（动态更新的 JSON）。** 向地址
 
@@ -528,11 +530,66 @@ regtime → 注册时的 UNIX 时间戳
 
 发送表单，其中的项为 `roomid` ，值为主播的房间号。
 
-<p class=yousa>有些主播直播间的 URL 和房间号不一致。你可能需要手动获取 roomid。</p>
+<div class=yousa>有些主播直播间的 URL 和房间号不一致。你可能需要手动获取 roomid：
+<br>
+新版的直播间页面中已经不再包含主播的真实 roomid，但是在旧版的页面中仍然包括。具体的位置是在 <code>api.live.bilibili.com</code> 的网页头部有这样一小段 js：
+<br>
+<pre>
+document.domain = 'bilibili.com';
+var ROOMID = 47377;
+var DANMU_RND = 1521281198;
+var NEED_VIDEO = 1;
+var ROOMURL = 593;
+var INITTIME = Date.now();
+var p2p = 0;
+</pre>
+
+roomid 就在当中。
+</div>
 
 请参见知乎上的这个[实现](https://zhuanlan.zhihu.com/p/21360141)（Python）。
 
-### 其他
+## 前方高能
+
+**获得 bilibili 登录态**
+
+在这个网站可以获得 bilibili 的 access_key，方便进行用户操作：
+
+**<https://bilibili.zrhdwz.cn/>**
+
+网站会返回一个地址：
+
+```
+https://account.bilibili.com/api/login/v2?actionKey=appkey&appkey=（已隐藏）&build=414000&captcha=（明文传送验证码）&platform=android&pwd=（加密传送密码）&userid=（你的登录名）&sign=（加密密钥）
+```
+
+你手动访问这个地址，会得到一个 json：
+
+```json
+{"ts":（申请时的 UNIX 时间戳）,
+  "mid":（你的用户号）,
+  "access_key":（已隐匿）,
+  "expires":（该 key 过期的时间戳）,
+  "code":0}
+```
+
+而这个请求可以获得主站的 cookie：
+
+```
+https://api.kaaass.net/biliapi/user/sso?access_key=（你的 access_key）
+```
+
+这个请求可以获得用户信息：
+
+```
+https://api.kaaass.net/biliapi/user/info?access_key=（你的 access_key）&furtherInfo=true
+```
+
+网站会返回一个 json：
+
+（太长了，懒得粘）
+
+## 其他
 
 **获取视频推荐。** 获取有关某个视频的推荐视频。向以下地址发送 GET 请求：
 
@@ -676,7 +733,7 @@ regtime → 注册时的 UNIX 时间戳
       "video_review":3394}]}
 ```
 
-<p class=yousa>这里的返回值目测含有正则表达式语法，可能需要稍作处理。</p>
+**这里的返回值目测含有正则表达式语法，可能需要稍作处理。**
 
 aid → AV 号
 
@@ -692,4 +749,4 @@ favorites → 收藏数
 
 video_review → 评论数
 
-<p style="color:lightgrey">bilibili、哔哩哔哩是上海幻电信息科技有限公司的注册商标。</p>
+<p style="color:lightgray;">bilibili、哔哩哔哩是上海幻电信息科技有限公司的注册商标。</p>
